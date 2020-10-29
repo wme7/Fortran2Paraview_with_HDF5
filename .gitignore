@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+*.run
+
+# Output files
+*.bin
+*.h5
+*.xmf
