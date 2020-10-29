@@ -1,7 +1,7 @@
 # Fortran2Paraview_with_HDF5
 This example is mean to show how to export data from fortran using XDMF/HDF5 solution. This snippet can also be used as translator of binary (unformatted) data into HDF5 format.
 
-![Visualization of pressure field in field_d0_it0.h5](./figures/ParaView_ScreenShot.png)
+![Visualization of pressure field in field_d0_it0.h5](/figures/ParaView_ScreenShot.png)
 
 ## HDF5 installation
 Install `hdf5` library in serial or parallel modality.
