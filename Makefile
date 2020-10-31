@@ -32,7 +32,9 @@ COMPILE := 	createSample_binData \
 			bin2hdf5_data_serial \
 			bin2hdf5_fields_serial \
 			bin2hdf5_data_parallel \
-			bin2hdf5_fields_parallel
+			bin2hdf5_fields_parallel \
+			MPI-IO_parallel_write \
+			MPI-IO_parallel_read
 
 .PHONY:	all test clean
 

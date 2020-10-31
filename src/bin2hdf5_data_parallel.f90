@@ -74,7 +74,7 @@ program bin2hdf5_parallel
     count(1) = dims(1)/MPIsize  ! dims(1)          ! dims(1)
     count(2) = dims(2)          ! dims(2)/MPIsize  ! dims(2)
     count(3) = dims(3)          ! dims(3)          ! dims(3)/MPIsize
-    ! Define hyperslab start and count parameters
+    ! Define hyperslab starting point
     start(1) = MPIrank*count(1) ! 0                ! 0
     start(2) = 0                ! MPIrank*count(2) ! 0
     start(3) = 0                ! 0                ! MPIrank*count(3)
