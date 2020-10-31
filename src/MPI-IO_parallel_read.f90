@@ -2,6 +2,8 @@ program  parallel_read
 
     ! Created by Manuel A. Diaz, ENSMA 2020
 
+    implicit none
+
     ! USE MPI ! This module should contains all necessary modules, but ...
     include "mpif.h" ! This module contains all necessary modules.
 
@@ -13,7 +15,7 @@ program  parallel_read
     ! Set MPI variables
     integer ::  MPIrank, MPIerror, MPIsize
     integer ::  i, count, file_id=0
-    integer (kind = MPI_OFFSET_KIND) :: start, emtpy=0
+    integer (kind = MPI_OFFSET_KIND) :: start, disp=0
     integer, dimension (MPI_STATUS_SIZE) :: status
 
     !  Set input_file to output datafile
@@ -39,7 +41,7 @@ program  parallel_read
     call MPI_BARRIER(MPI_COMM_WORLD, MPIerror)
 
     !  Define the local view of the data 
-    call MPI_FILE_SET_VIEW(file_id, empty, MPI_REAL4, MPI_REAL4, 'native', MPI_INFO_NULL, MPIerror)
+    call MPI_FILE_SET_VIEW(file_id, disp, MPI_REAL4, MPI_REAL4, 'native', MPI_INFO_NULL, MPIerror)
 
     !  Read only the section of the data file each process needs and put data in the data buffer.
     call MPI_FILE_READ_AT(file_id, start, buffer, count, MPI_REAL4, status, MPIerror)

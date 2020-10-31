@@ -3,6 +3,8 @@ program  parallel_write
     ! Created by Manuel A. Diaz, ENSMA 2020
 
     USE MPI ! This module contains all necessary modules.
+    
+    implicit none
 
     ! Set output file and data parameters
     character (len = *), parameter :: output_file = "vector.bin"
@@ -12,7 +14,7 @@ program  parallel_write
     ! Set MPI variables
     integer ::  MPIrank, MPIerror, MPIsize
     integer ::  i, count, file_id=0
-    integer (kind = MPI_OFFSET_KIND) :: start, empty=0
+    integer (kind = MPI_OFFSET_KIND) :: start, disp=0
     integer, dimension (MPI_STATUS_SIZE) :: status
 
     !  Set output_file to output datafile
@@ -51,7 +53,7 @@ program  parallel_write
     call MPI_BARRIER(MPI_COMM_WORLD, MPIerror)
 
     !  Define the local view of the data 
-    call MPI_FILE_SET_VIEW(file_id, empty, MPI_REAL4, MPI_REAL4, 'native', MPI_INFO_NULL, MPIerror)
+    call MPI_FILE_SET_VIEW(file_id, disp, MPI_REAL4, MPI_REAL4, 'native', MPI_INFO_NULL, MPIerror)
 
     !  Send the data buffer to the output file in the proper place
     call MPI_FILE_WRITE_AT(file_id, start, buffer, count, MPI_REAL4, status, MPIerror)

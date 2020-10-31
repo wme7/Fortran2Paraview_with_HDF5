@@ -27,10 +27,12 @@ LIBHDF5 = -I$(HDF_INSTALL)/include -L$(HDF_INSTALL)/lib -lhdf5_fortran
 OPTIONS = -cpp -D_USE_DOUBLE_PRECISION
 
 # List of programs to be compiled:
-COMPILE := 	createSample_binData \
-			createSample_binFields \
+COMPILE := 	createSample_binData_serial \
+			createSample_binFields_serial \
 			bin2hdf5_data_serial \
 			bin2hdf5_fields_serial \
+			createSample_binData_parallel \
+			createSample_binFields_parallel \
 			bin2hdf5_data_parallel \
 			bin2hdf5_fields_parallel \
 			MPI-IO_parallel_write \

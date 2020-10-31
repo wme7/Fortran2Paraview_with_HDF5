@@ -3,12 +3,14 @@ program bin2hdf5_parallel
     ! Created by Manuel A. Diaz, ENSMA 2020
 
     USE HDF5 ! This module contains all necessary modules 
-    USE MPI  ! This module contains all necessary subroutines
+
+    implicit none
+
+    ! USE MPI ! This module should contains all necessary modules, but ...
+    include "mpif.h" ! This module contains all necessary modules.
 
     ! IMPORTANT NOTE:
     ! Number of processes and size of data in x-direction should be multiples of 2 (1,2,4,8)
-
-    implicit none
 
     !-------- initialize variables -------------
     character(len=256) :: input_file
@@ -25,6 +27,12 @@ program bin2hdf5_parallel
     integer :: info = MPI_INFO_NULL
     integer :: comm = MPI_COMM_WORLD
     integer :: MPIsize, MPIrank, MPIerror
+    integer :: input_file_id
+    integer :: new_type, data_type = MPI_REAL8;
+    integer (kind = MPI_OFFSET_KIND) :: disp=0
+    integer, dimension(3) :: dims   ! dimensions full array
+    integer, dimension(3) :: count  ! dimensions subarray
+    integer, dimension(3) :: start  ! start coordinates
 
     ! hdf5 subroutines parameters
     integer(HID_T) :: output_file_id  ! File identifier 
@@ -35,16 +43,15 @@ program bin2hdf5_parallel
     integer        :: HDFerror        ! Error flags
     
     ! Data buffer and its properties
-    integer, allocatable :: data (:,:,:)  ! Data to write
-    integer              :: rank = 3      ! Dataset rank 
+    integer,   parameter  :: fp=8          ! float data presicion
+    real(fp), allocatable :: data (:,:,:)  ! Data to write
+    integer               :: rank = 3      ! Dataset rank 
 
     ! Hyperslab parameters
-    integer(HSIZE_T), dimension(3) :: dims
-    integer(HSIZE_T), dimension(3) :: start  ! Offset of start of hyperslab
-    integer(HSIZE_T), dimension(3) :: count  ! Number of blocks to select from dataspace 
-    !integer(HSIZE_T), dimension(3) :: stride ! Array of how many elements to move in each direction [not need]
-    !integer(HSIZE_T), dimension(3) :: block  ! Size of the element block [not need]
-
+    integer(HSIZE_T), dimension(3) :: HDFdims   ! dimensions full array
+    integer(HSIZE_T), dimension(3) :: HDFstart  ! dimensions subarray (hyperslab)
+    integer(HSIZE_T), dimension(3) :: HDFcount  ! start coordinates of subarray 
+    
     !--------  Parse arguments from command --------------------
     if ( command_argument_count() .NE. 4 ) then
         print*, "Mode of use: mpirun -n # bin2hdf5_parallel.run [*.bin] [nx] [ny] [nz]"; stop
@@ -78,17 +85,27 @@ program bin2hdf5_parallel
     start(1) = MPIrank*count(1) ! 0                ! 0
     start(2) = 0                ! MPIrank*count(2) ! 0
     start(3) = 0                ! 0                ! MPIrank*count(3)
-
+    ! Translate for HDF parameters
+    HDFdims(1)=dims(1);  HDFcount(1)=count(1);  HDFstart(1)=start(1)
+    HDFdims(2)=dims(2);  HDFcount(2)=count(2);  HDFstart(2)=start(2)
+    HDFdims(3)=dims(3);  HDFcount(3)=count(3);  HDFstart(3)=start(3)
+    
     !----------- Allocate the rank's memory space  -------------
     allocate ( data(count(1),count(2),count(3)) )
 
-    !--------- Initialize data buffer with trivial data --------
-    data = MPIrank + 10
+    !----------------- Initialize data_buffer ------------------
+    ! fill buffer with data from the input_file 
+    call MPI_FILE_OPEN(MPI_COMM_WORLD, input_file, MPI_MODE_CREATE + MPI_MODE_RDWR, MPI_INFO_NULL, input_file_id, MPIerror)
+    call MPI_BARRIER(MPI_COMM_WORLD, MPIerror)
+    call MPI_TYPE_CREATE_SUBARRAY(rank, dims, count, start, MPI_ORDER_FORTRAN, data_type, new_type, MPIerror)
+    call MPI_TYPE_COMMIT(new_type, MPIerror)
+    call MPI_FILE_SET_VIEW(input_file_id, disp, data_type, new_type, 'native', MPI_INFO_NULL, MPIerror)
+    call MPI_FILE_READ_ALL(input_file_id, data, count(1)*count(2)*count(3), data_type, MPI_STATUS_IGNORE, MPIerror)
+    call MPI_TYPE_FREE(new_type, MPIerror)
+    call MPI_BARRIER(MPI_COMM_WORLD, MPIerror)
+    call MPI_FILE_CLOSE(input_file_id, MPIerror)
 
-    !---- or ---- Read the input data in parallel --------------
-    ! an MPI-IO reader comming soon ...
-
-    !----------- Write the data with parallel HDF5 -------------
+    !----------- Write the data_buffer to an HDF5 file ---------
     ! Initialize FORTRAN predefined datatypes
     CALL h5open_f(HDFerror)
 
@@ -101,29 +118,29 @@ program bin2hdf5_parallel
     CALL h5pclose_f(proplist_id, HDFerror)
 
     ! Create the data space for the  dataset. 
-    CALL h5screate_simple_f(rank, dims, filespace, HDFerror)
+    CALL h5screate_simple_f(rank, HDFdims, filespace, HDFerror)
 
     ! Create the dataset with default properties.
-    CALL h5dcreate_f(output_file_id, "IntArray", H5T_NATIVE_integer, filespace, dataset_id, HDFerror)
+    CALL h5dcreate_f(output_file_id, "IntArray", H5T_NATIVE_DOUBLE, filespace, dataset_id, HDFerror)
     CALL h5sclose_f(filespace, HDFerror)
 
     ! Each process defines dataset in memory and writes it to the hyperslab in the file. 
-    CALL h5screate_simple_f(rank, count, memspace, HDFerror) 
+    CALL h5screate_simple_f(rank, HDFcount, memspace, HDFerror) 
 
     ! Select hyperslab in the file.
     CALL h5dget_space_f(dataset_id, filespace, HDFerror)
-    CALL h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, start, count, HDFerror)
+    CALL h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, HDFstart, HDFcount, HDFerror)
 
     ! Create property list for collective dataset write
     CALL h5pcreate_f(H5P_DATASET_XFER_F, proplist_id, HDFerror) 
     CALL h5pset_dxpl_mpio_f(proplist_id, H5FD_MPIO_COLLECTIVE_F, HDFerror)
     
     ! Write the dataset collectively. 
-    CALL h5dwrite_f(dataset_id, H5T_NATIVE_integer, data, dims, HDFerror, &
+    CALL h5dwrite_f(dataset_id, H5T_NATIVE_DOUBLE, data, HDFdims, HDFerror, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = proplist_id)
 
     ! Write the dataset independently. 
-    ! CALL h5dwrite_f(dataset_id, H5T_NATIVE_integer, data, dims, HDFerror, &
+    ! CALL h5dwrite_f(dataset_id, H5T_NATIVE_DOUBLE, data, HDFdims, HDFerror, &
     !         file_space_id = filespace, mem_space_id = memspace)
 
     CALL h5sclose_f(filespace, HDFerror)        ! close file space

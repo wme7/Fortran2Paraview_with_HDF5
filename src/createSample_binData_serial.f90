@@ -14,7 +14,6 @@ program writeSampleBinData
     integer              :: output_file_id=3 ! File identifier
     real(8), allocatable :: buff_data(:,:,:) ! Buffer for array
     integer              :: buff_lenght      ! Buffer length
-    integer              :: i,j,k            ! dummy indexes
 
     !-------- Parse arguments from command --------
     if ( command_argument_count() .NE. 3 ) then
@@ -29,14 +28,8 @@ program writeSampleBinData
     !-------- Allocate space for the array -------------
     allocate(buff_data(nx,ny,nz))
 
-    !------ fill in the array with sample data ----
-    do k = 1, Nz
-        do j = 1, Ny
-            do i = 1, Nx
-                buff_data(i,j,k) = 1.0
-            end do
-        end do
-    end do
+    !------ fill in the array with trivial data -------
+    buff_data = 10.0
 
     !------ write in data in a binary file -----------
     Inquire( iolength = buff_lenght ) buff_data
