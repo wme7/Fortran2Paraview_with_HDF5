@@ -30,7 +30,9 @@ OPTIONS = -cpp -D_USE_DOUBLE_PRECISION
 COMPILE := 	createSample_binData \
 			createSample_binFields \
 			bin2hdf5_data_serial \
-			bin2hdf5_fields_serial
+			bin2hdf5_fields_serial \
+			bin2hdf5_data_parallel \
+			bin2hdf5_fields_parallel
 
 .PHONY:	all test clean
 
