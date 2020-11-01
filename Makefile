@@ -54,7 +54,8 @@ $(APP_DIR)/%.o: $(APP_DIR)/%.f90
 	$(F90) -c -o $@ $< $(LIBHDF5) $(FFLAGS) $(OPTIONS)
 
 # Programs dependency information (the order is important!)
-$(COMPILE): $(INC_DIR)/s_writeXDMF.o  
+$(COMPILE): $(INC_DIR)/s_writeGeometry.o \
+			$(INC_DIR)/s_writeXDMF.o  
 
 # How to get executables from .o object files
 %: $(APP_DIR)/%.o
@@ -62,4 +63,4 @@ $(COMPILE): $(INC_DIR)/s_writeXDMF.o
 
 clean:
 	$(RM) $(EXE_DIR)/*.run $(MOD_DIR)/*.o $(APP_DIR)/*.o $(EXE_DIR)/*.mod \
-	$(EXE_DIR)/*.bin $(EXE_DIR)/*.dat $(EXE_DIR)/*.h5 $(EXE_DIR)/*.xmf
+	$(INC_DIR)/*.o $(EXE_DIR)/*.bin $(EXE_DIR)/*.dat $(EXE_DIR)/*.h5 $(EXE_DIR)/*.xmf

@@ -15,7 +15,7 @@ program writeSampleBinData
 
     integer              :: Nx, Ny, Nz       ! Array dimensions
     integer              :: output_file_id=3 ! File identifier
-    real(8)              :: Lx, Ly, Lz       ! mesh Length
+    real(8)              :: Lx, Ly, Lz       ! mesh Lengths
     real(8)              :: dx, dy, dz       ! mesh cell's sizes
     real(8), allocatable :: x(:), y(:), z(:) ! Axis points arrays
     real(8), allocatable :: p(:,:,:)         ! Buffer for array
@@ -89,9 +89,9 @@ program writeSampleBinData
 
     ! If we reach this point then
     print*, "outputs: ", output_file0, output_file1, output_file2, output_file3
-    deallocate(p)
     deallocate(x)
     deallocate(y)
     deallocate(z)
+    deallocate(p)
 
     end program writeSampleBinData
