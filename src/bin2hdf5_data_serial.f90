@@ -33,7 +33,7 @@ program bin2hdf5
 
     !--------  Parse arguments from command -------------
     if ( command_argument_count() .NE. 4 ) then
-        print*, "Mode of use: ./bin2hdf5_serial.run [*.bin] [nx] [ny] [nz]"; stop
+        print*, "Mode of use: ./bin2hdf5_serial.run [*.bin] [Nx] [Ny] [Nz]"; stop
     else 
         call get_command_argument(1,input_file)
         call get_command_argument(2,Nx_char); read(Nx_char,*) Nx
@@ -47,7 +47,7 @@ program bin2hdf5
     if (pointPosition>0) output_file = input_file(1:pointPosition)//data_extension
 
     !-------- Allocate space for the array -------------
-    allocate(buff_read(nx,ny,nz))
+    allocate(buff_read(Nx,Ny,Nz))
    
     !-------- Read the input data -------------
     Inquire( iolength = buff_lenght ) buff_read

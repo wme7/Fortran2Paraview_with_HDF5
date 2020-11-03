@@ -54,7 +54,7 @@ program bin2hdf5_parallel
     
     !--------  Parse arguments from command --------------------
     if ( command_argument_count() .NE. 4 ) then
-        print*, "Mode of use: mpirun -n # bin2hdf5_parallel.run [*.bin] [nx] [ny] [nz]"; stop
+        print*, "Mode of use: mpirun -n # bin2hdf5_parallel.run [*.bin] [Nx] [Ny] [Nz]"; stop
     else 
         call get_command_argument(1,input_file)
         call get_command_argument(2,Nx_char); read(Nx_char,*) Nx

@@ -29,7 +29,7 @@ program writeSampleBinData
 
     !-------- Parse arguments from command -----------
     if ( command_argument_count() .NE. 3 ) then
-        print*, "Mode of use: ./sample_binFields.run [nx] [ny] [nz]"; stop
+        print*, "Mode of use: ./sample_binFields.run [Nx] [Ny] [Nz]"; stop
     else 
         call get_command_argument(1,Nx_char); read(Nx_char,*) Nx
         call get_command_argument(2,Ny_char); read(Ny_char,*) Ny
@@ -41,7 +41,7 @@ program writeSampleBinData
     allocate( x(Nx) )
     allocate( y(Ny) )
     allocate( z(Nz) )
-    allocate( p(nx,ny,nz) )
+    allocate( p(Nx,Ny,Nz) )
 
     !-------- Build mesh grid axis -------------------
     Lx = 1.0; dx = Lx / (Nx-1) 

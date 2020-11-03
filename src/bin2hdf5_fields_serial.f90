@@ -36,7 +36,7 @@ program bin2hdf5
 
     !--------  Parse arguments from command -------------
     if ( command_argument_count() .NE. 4 ) then
-        print*, "Mode of use: ./bin2hdf5_fields_serial.run [*.bin] [nx] [ny] [nz]"; stop
+        print*, "Mode of use: ./bin2hdf5_fields_serial.run [*.bin] [Nx] [Ny] [Nz]"; stop
     else 
         call get_command_argument(1,input_file0)
         call get_command_argument(2,Nx_char); read(Nx_char,*) Nx

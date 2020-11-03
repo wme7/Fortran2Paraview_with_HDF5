@@ -17,7 +17,7 @@ program writeSampleBinData
 
     !-------- Parse arguments from command --------
     if ( command_argument_count() .NE. 3 ) then
-        print*, "Mode of use: ./sample_binData.run [nx] [ny] [nz]"; stop
+        print*, "Mode of use: ./sample_binData.run [Nx] [Ny] [Nz]"; stop
     else 
         call get_command_argument(1,Nx_char); read(Nx_char,*) Nx
         call get_command_argument(2,Ny_char); read(Ny_char,*) Ny
@@ -26,7 +26,7 @@ program writeSampleBinData
     end if
 
     !-------- Allocate space for the array -------------
-    allocate(buff_data(nx,ny,nz))
+    allocate(buff_data(Nx,Ny,Nz))
 
     !------ fill in the array with trivial data -------
     buff_data = 10.0
