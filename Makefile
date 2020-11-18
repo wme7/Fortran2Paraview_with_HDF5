@@ -1,16 +1,18 @@
-# Use gfortran unless already defined
-F90 ?= mpif90
-
-ifeq ($(F90), mpif90)
+# Identify the compiler and libraries path by hostname
+PC := $(shell hostname)
+ifeq ($(PC), macbook)
+	F90 ?= mpif90
 	FFLAGS	?= -O2 -g -std=f2008 -Wall -Wextra -fall-intrinsics
-else ifeq ($(F90), ifort)
-	FFLAGS	:= -O2 -stand f08 -warn all
+	HDF_INSTALL = /usr/local/phdf5-1.10.7
+else ifeq ($(PC), B17-postdoc2020)
+	F90 ?= mpif90
+	FFLAGS	?= -O2 -g -std=f2008 -Wall -Wextra -fall-intrinsics
+	HDF_INSTALL = /mnt/c/Users/mdiazesc/phdf5
+else ifeq ($(PC), thor)
+	F90 ?= ifort
+	FFLAGS	?= -O2 -stand f08 -warn all
+	HDF_INSTALL = sw/lib/hdf5/1.10.6/mpt_intel18
 endif
-
-# Path th HDF5 library (serial)
-#HDF_INSTALL = /usr/local/Cellar/hdf5/1.12.0_1
-# Path th HDF5 library (parallel)
-HDF_INSTALL = /usr/local/phdf5-1.10.7
 
 # Make Directory command
 MKDIR_P := mkdir -p

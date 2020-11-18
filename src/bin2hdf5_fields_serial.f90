@@ -98,33 +98,7 @@ program bin2hdf5
     CALL h5close_f(error) ! Close FORTRAN interface.
 
     ! Write geometry file
-    CALL writeGeometry_h5_dp(x,y,z,Nx,Ny,Nz)
-    ! CALL h5open_f(error) ! Initialize FORTRAN interface of HDF5. 
-    ! CALL h5fcreate_f ("geometry_d0.h5", H5F_ACC_TRUNC_F, output_file_id, error) ! Create a new file.
-    ! ! x
-    ! dim = Nx
-    ! CALL h5screate_simple_f(1, dim, dspace_id, error) ! Create the dataspace.
-    ! CALL h5dcreate_f(output_file_id, "x_nodes", H5T_NATIVE_DOUBLE, dspace_id, dset_id, error)
-    ! CALL h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, x, dim, error) ! Write the dataset.
-    ! CALL h5dclose_f(dset_id, error) ! End access to the dataset and release resources used by it.
-    ! CALL h5sclose_f(dspace_id, error) ! Terminate access to the data space.
-    ! ! y
-    ! dim = Ny
-    ! CALL h5screate_simple_f(1, dim, dspace_id, error) ! Create the dataspace.
-    ! CALL h5dcreate_f(output_file_id, "y_nodes", H5T_NATIVE_DOUBLE, dspace_id, dset_id, error)
-    ! CALL h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, y, dim, error) ! Write the dataset.
-    ! CALL h5dclose_f(dset_id, error) ! End access to the dataset and release resources used by it.
-    ! CALL h5sclose_f(dspace_id, error) ! Terminate access to the data space.
-    ! ! z
-    ! dim = Nz
-    ! CALL h5screate_simple_f(1, dim, dspace_id, error) ! Create the dataspace.
-    ! CALL h5dcreate_f(output_file_id, "z_nodes", H5T_NATIVE_DOUBLE, dspace_id, dset_id, error)
-    ! CALL h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, z, dim, error) ! Write the dataset.
-    ! CALL h5dclose_f(dset_id, error) ! End access to the dataset and release resources used by it.
-    ! CALL h5sclose_f(dspace_id, error) ! Terminate access to the data space.
-    
-    ! CALL h5fclose_f(output_file_id, error) ! Close the file.
-    ! CALL h5close_f(error) ! Close FORTRAN interface.
+    CALL writeGeometry_h5_serial(x,y,z,Nx,Ny,Nz)
 
     ! if everything goes well then report that:
     print*, "translation *.bin to *.h5 successful :)"
@@ -134,6 +108,6 @@ program bin2hdf5
     deallocate(p)
 
     !-------- Write the associated XDMF file -------------
-    call writeFields3D_xmf_dp(xdmf_file,Nx,Ny,Nz,0.0)
+    call writeFields3D_xmf_dp(xdmf_file,Nx,Ny,Nz,0.0_fp)
    
     end program bin2hdf5

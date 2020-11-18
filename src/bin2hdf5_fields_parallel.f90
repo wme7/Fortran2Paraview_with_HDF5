@@ -98,15 +98,13 @@ program bin2hdf5_parallel
     HDFdims(3)=dims(3);  HDFcount(3)=count(3);  HDFstart(3)=start(3)
     
     !----------- Allocate the rank's memory space  -------------
-    if (MPIrank.eq.0) then
-        allocate( x(Nx) )
-        allocate( y(Ny) )
-        allocate( z(Nz) )
-    end if
+    allocate( x(Nx) )
+    allocate( y(Ny) )
+    allocate( z(Nz) )
     allocate ( p(count(1),count(2),count(3)) )
 
     !----------------- Initialize data_buffer ------------------
-    ! fill buffer with data from the input_file 
+    ! fill buffer with data from the input_file.bin
     call MPI_FILE_OPEN(MPI_COMM_WORLD, input_file0, MPI_MODE_CREATE + MPI_MODE_RDWR, MPI_INFO_NULL, input_file_id, MPIerror)
     call MPI_BARRIER(MPI_COMM_WORLD, MPIerror)
     call MPI_TYPE_CREATE_SUBARRAY(3, dims, count, start, MPI_ORDER_FORTRAN, data_type, new_type, MPIerror)
@@ -116,6 +114,7 @@ program bin2hdf5_parallel
     call MPI_TYPE_FREE(new_type, MPIerror)
     call MPI_BARRIER(MPI_COMM_WORLD, MPIerror)
     call MPI_FILE_CLOSE(input_file_id, MPIerror)
+    ! Rank 0 reads ascii data-files with axis points
     if (MPIrank.eq.0) then
         open (input_file_id,file=trim(input_file1), form='formatted', status='old', action='read')
         do i = 1, Nx
@@ -133,6 +132,10 @@ program bin2hdf5_parallel
         end do
         close(input_file_id)
     end if
+    ! Broadcast to the rest of the ranks
+    call MPI_BCAST(x, nx, data_type, 0, MPI_COMM_WORLD, MPIerror)
+    call MPI_BCAST(y, ny, data_type, 0, MPI_COMM_WORLD, MPIerror)
+    call MPI_BCAST(z, nz, data_type, 0, MPI_COMM_WORLD, MPIerror)
 
     !----------- Write the data_buffer to an HDF5 file ---------
     ! Initialize FORTRAN predefined datatypes
@@ -180,19 +183,17 @@ program bin2hdf5_parallel
     CALL h5close_f(HDFerror)                    ! Close FORTRAN predefined datatypes.
 
     ! Write geometry file
-    if (MPIrank.eq.0) CALL writeGeometry_h5_dp(x,y,z,Nx,Ny,Nz)
+    CALL writeGeometry_h5_parallel(x,y,z,Nx,Ny,Nz)
 
     ! if everything goes well then report that:
-    if (MPIrank.eq.0) then
-        print*, "translation *.bin to *.h5 successful :)"
-        deallocate(x)
-        deallocate(y)
-        deallocate(z)
-    end if
+    if (MPIrank.eq.0) print*, "translation *.bin to *.h5 successful :)"
+    deallocate(x)
+    deallocate(y)
+    deallocate(z)
     deallocate(p) ! Deallocate data buffer.
 
     !-------- Write the associated XDMF file -------------
-    if (MPIrank.eq.0) call writeFields3D_xmf_dp(xdmf_file,Nx,Ny,Nz,0.0)
+    if (MPIrank.eq.0) call writeFields3D_xmf_dp(xdmf_file,Nx,Ny,Nz,0.0_fp)
 
     ! ------------ Finalize MPI -----------------
     CALL MPI_FINALIZE(MPIerror)
