@@ -11,7 +11,7 @@ else ifeq ($(PC), B17-postdoc2020)
 else ifeq ($(PC), thor)
 	F90 ?= ifort
 	FFLAGS	?= -O2 -stand f08 -warn all
-	HDF_INSTALL = sw/lib/hdf5/1.10.6/mpt_intel18
+	HDF_INSTALL = /sw/lib/hdf5/1.10.6/mpt_intel18
 endif
 
 # Make Directory command
@@ -64,5 +64,5 @@ $(COMPILE): $(INC_DIR)/s_writeGeometry.o \
 	$(F90) -o $(EXE_DIR)/$@.run $^ $(LIBHDF5) $(FFLAGS) $(OPTIONS) 
 
 clean:
-	$(RM) $(EXE_DIR)/*.run $(MOD_DIR)/*.o $(APP_DIR)/*.o $(EXE_DIR)/*.mod \
+	$(RM) *genmod.f90 $(EXE_DIR)/*.run $(MOD_DIR)/*.o $(APP_DIR)/*.o $(EXE_DIR)/*.mod \
 	$(INC_DIR)/*.o $(EXE_DIR)/*.bin $(EXE_DIR)/*.dat $(EXE_DIR)/*.h5 $(EXE_DIR)/*.xmf
