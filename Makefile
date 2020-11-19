@@ -1,6 +1,6 @@
 # Identify the compiler and libraries path by hostname
 PC := $(shell hostname)
-ifeq ($(PC), macbook)
+ifeq ($(PC), Manuels-MacBook.local)
 	F90 ?= mpif90
 	FFLAGS	?= -O2 -g -std=f2008 -Wall -Wextra -fall-intrinsics
 	HDF_INSTALL = /usr/local/phdf5-1.10.7
